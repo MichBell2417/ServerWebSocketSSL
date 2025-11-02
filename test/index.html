@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client</title>
+    <script>
+        // Use ws:// for non-TLS servers or wss:// for TLS; update to match your server configuration
+        const URI = "wss://localhost:8080";
+        let websocket = new WebSocket(URI);
+        let pingInterval;
+        let counter = 0;
+
+        websocket.addEventListener("error", (e) => {
+            console.error("WebSocket error:", e);
+        });
+
+        websocket.addEventListener("open", () => {
+            console.log("CONNECTED");
+            pingInterval = setInterval(() => {
+                counter++;
+                console.log(`SENT: ping: ${counter}`);
+                websocket.send("ping");
+            }, 1000);
+        });
+
+        websocket.addEventListener("message", (e) => {
+            console.log("RECEIVED:", e.data);
+        });
+
+        websocket.addEventListener("close", (e) => {
+            console.log("DISCONNECTED", e.code, e.reason);
+            clearInterval(pingInterval);
+        });
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
