@@ -1,0 +1,1 @@
+In questa cartella deve essere inserito il certificato del server generato da una Certificate Authority (CA) come Let's Encrypt

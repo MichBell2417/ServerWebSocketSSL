@@ -4,8 +4,8 @@ import ssl
 import pathlib
 
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-localhost_pem = pathlib.Path(__file__).with_name("localhost.pem")
-ssl_context.load_cert_chain(certfile="cert.pem", keyfile="key.pem")
+localhost_pem = pathlib.Path(__file__).parent / "certificatoSSL" / "localhost.pem"
+ssl_context.load_cert_chain(localhost_pem)
 
 async def manager(websocket):
     print("connected")
