@@ -4,8 +4,11 @@ import ssl
 import pathlib
 
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-localhost_pem = pathlib.Path(__file__).parent / "certificatoSSL" / "localhost.pem"
-ssl_context.load_cert_chain(localhost_pem)
+#localhost_pem = pathlib.Path(__file__).parent / "certificatoSSL" / "localhost.pem"
+fullchain_pem = pathlib.Path("/etc/letsencrypt/live/michy.sytes.net/fullchain.pem")
+privkey_pem = pathlib.Path("/etc/letsencrypt/live/michy.sytes.net/privkey.pem")
+#ssl_context.load_cert_chain(localhost_pem)
+ssl_context.load_cert_chain(fullchain_pem, privkey_pem)
 
 async def manager(websocket):
     print("connected")
