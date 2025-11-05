@@ -6,7 +6,8 @@
     <title>Client</title>
     <script>
         // Use ws:// for non-TLS servers or wss:// for TLS; update to match your server configuration
-        const URI = "wss://localhost:8080";
+        const URI = "wss://localhost:5000";
+        //const URI = "wss://michy.sytes.net:5000";
         let websocket = new WebSocket(URI);
         let pingInterval;
         let counter = 0;
