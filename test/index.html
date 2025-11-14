@@ -9,33 +9,71 @@
         const URI = "wss://localhost:8080";
         //const URI = "wss://michy.sytes.net:5000";
         let websocket = new WebSocket(URI);
-        let pingInterval;
-        let counter = 0;
+
+        let button;
+        let labelFeedback;
+        function init(){
+            button=document.getElementById("login");
+            button.addEventListener("click", e => sendLogin());
+            labelFeedback=document.getElementById("feedback");
+        }
+        
+        let loggedIn=false;
+
+        let username;
+        let password;
+        function sendLogin(){
+            username=document.getElementById("username").value;
+            password=document.getElementById("password").value;
+            if(username!="" && password!=""){
+                messageToSend=`A:-${username}:-${password}`;
+                if(websocket.readyState==1){
+                    websocket.send(messageToSend);
+                    console.log(websocket);
+                    labelFeedback.innerText="Messaggio inviato";
+                }else{
+                    alert("ATTENZIONE, non sei connesso al server. Prova a ricaricare la pagina o assicurati che il server sia disponibile");
+                }
+            }else{
+                labelFeedback.innerText="Inserisci i dati per il Login";
+            }
+        }
 
         websocket.addEventListener("error", (e) => {
-            console.error("WebSocket error:", e);
+            console.error("WebSocket error:", e, websocket);
+            labelFeedback.innerText="ERRORE GENERALE";
         });
 
         websocket.addEventListener("open", () => {
             console.log("CONNECTED");
-            pingInterval = setInterval(() => {
-                counter++;
-                console.log(`SENT: ping: ${counter}`);
-                websocket.send("ping");
-            }, 1000);
+            labelFeedback.innerText="Server connesso";
         });
 
         websocket.addEventListener("message", (e) => {
-            console.log("RECEIVED:", e.data);
+            console.log("RECEIVED:", e.data, typeof(e.data));
+            
+            if(loggedIn==false){
+                
+            }
         });
 
         websocket.addEventListener("close", (e) => {
             console.log("DISCONNECTED", e.code, e.reason);
-            clearInterval(pingInterval);
+            labelFeedback.innerText="ERRORE: server disconnesso "+e.code;
         });
+
+        
     </script>
 </head>
-<body>
-    
+<body onload="init()">
+    <div id="containerLogin">
+        <h2>Log In</h2>
+        <p class="textLogin">Username</p>
+        <input type="text" id="username"></textarea>
+        <p class="textLogin">Password</p>
+        <input type="password" id="password"></textarea>
+        <button id="login">Accedi</button>
+        <p id="feedback"></p>
+    </div>
 </body>
 </html>
