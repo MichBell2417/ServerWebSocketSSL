@@ -1,46 +1,95 @@
 import csv
-from datetime import datetime
-def messaggio(richiesta,utentiOnline):
+import User
+#indica gli utenti online
+onlineUser=[]
+
+commandList=[
+    "CloseDoor",
+    "OpenDoor",
+    "StatusDoor",
+    "ChronDoor"
+]
+
+def messaggio(message):
+    """Funzione che verifica la struttura del messaggio
+    
+    :param message: il messaggio
+    :return: se il messaggio è corretto o no
+    """
+    #se si presenta un errore di indice e quindi non esiste un campo
+    #il messaggi è sbagliato
     try:
-        nome = richiesta[0]
-        messaggio = richiesta[1]
-        return True
+        name=message[1]
+        user=userFromNome(name)
+        if(user!=None):
+            #verifico che il codice di sicurezza sia giusto
+            secureC=message[2]
+            user.checkAffidability(secureC)
+            command=message[3]
+            existingCommand=False
+            #verifico che il comando inviato sia esistente
+            for comm in commandList:
+                if command==comm:
+                    existingCommand=True
+                    break
+            if existingCommand==False:
+                return False
+            return True
+        else:
+            return False
     except IndexError:
         return False
 
-def accesso(richiesta):
+def accesso(nome,psw,websocket):
+    """verifica che i dati inseriti siano corretti e esegue il salvataggio tra quelli online
+
+    :param nome: il nome dell'utente interessato 
+    :param psw: la password dell'utente 
+    :param websocket: il websocket che ha inserito i dati precedenti
+    :return: se l'utente è stato aggiuinto o no
+    """
     verifica = False
-    nome = richiesta[1]
-    psw = richiesta[2]
     with open('log.csv', mode='r', newline='', encoding='utf-8') as file:
         lettore = csv.reader(file, delimiter=',')
         for riga in lettore:
-            print(riga)
-            if riga[0]==nome and riga[1]==psw :
-                #print("coretto")
+            if riga[0]==nome and riga[1]==psw:
                 verifica = True
+                onlineUser.append(User.User(nome,websocket))
                 break
     return verifica
 
-def deleteByWebSocket(users, websocket):
-    for user in users:
-        if user.getWebsocket() == websocket:
-            users.remove(user)
-            print(user.getNome() + " si è disconnesso")
-    return users
+def userFromNome(nome):
+    """Questa funzione ritorna l'utente con lo stesso nome.
 
-async def sendOnlineUsers(utenti):
-    message="U|"
-    for i in range(len(utenti)):
-        if not i==0:
-            message+="|"+utenti[i].getNome()
+    :param nome: il nome dell'utente interessato
+    :return: l'oggetto User interessato dalla ricerca o None se inesistente
+    """
+    for user in onlineUser:
+        if nome==user.nome:
+            return user
         else:
-            message+=utenti[i].getNome()
-    await sendBroadcast(utenti, message)
+            return None
 
-async def sendBroadcast(utenti, message):
-    for client in utenti:
-        await client.getWebsocket().send(message)
+def userFromWebsocket(websocket):
+    """Questa funzione ritorna l'utente con lo stesso websocket.
+
+    :param websocket: il websocket dell'utente interessato
+    :return: l'oggetto User interessato dalla ricerca o None se inesistente
+    """
+    for user in onlineUser:
+        if websocket==user.websocket:
+            return user
+        else:
+            return None
+
+def removeOnlineUser(websocket):
+    global onlineUser
+    try:
+        onlineUser=onlineUser.remove(userFromWebsocket(websocket))
+        if(onlineUser==None):
+            onlineUser=[]
+    except ValueError:
+        return
 
 async def sendTo(user, message):
     await user.send(message)

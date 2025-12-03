@@ -3,6 +3,8 @@ import websockets
 import ssl
 import pathlib
 import utility
+import User
+import testMessage
 
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 localhost_pem = pathlib.Path(__file__).parent / "certificatoSSL" / "localhost.pem"
@@ -18,17 +20,18 @@ async def manager(websocket):
     async for message in websocket:
         messageParts=message.split(separator)
         if(messageParts[0]=="M"):
-            if(utility.messaggio()):
+            if(utility.messaggio(messageParts)):
                 #la struttura del messaggio è corretta
-                print(messageParts[1])
+                await utility.sendTo(websocket, "R:Feedback")
             else:
                 await utility.sendTo(websocket, "R:-E1")
         elif(messageParts[0]=="A"):
-            if(utility.accesso(messageParts)):
+            if(utility.accesso(messageParts[1],messageParts[2],websocket)):
                 print("logged in")
+                await utility.sendTo(websocket, ("U:-OK:-"+str(utility.userFromWebsocket(websocket).secureC)))
             else:
                 await utility.sendTo(websocket, "U:-E0")
-        
+    utility.removeOnlineUser(websocket)
     print("disconnected")
 
 async def start():
