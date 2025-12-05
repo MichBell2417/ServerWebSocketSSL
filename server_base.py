@@ -24,7 +24,7 @@ async def manager(websocket):
                 #la struttura del messaggio è corretta
                 if messageParts[3]=="ChronDoor":
                     with open(mqttClient.nomeFileLog, "r") as log:
-                        await utility.sendTo(websocket, log.read())
+                        await utility.sendTo(websocket, "R:-"+log.read())
                 else:
                     command=utility.changeToMqttMessage(messageParts)
                     mqttClient.sendCommand(command, utility.userFromWebsocket(websocket))
