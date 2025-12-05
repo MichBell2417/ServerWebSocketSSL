@@ -1,5 +1,6 @@
 import csv
 import User
+import info
 #indica gli utenti online
 onlineUser=[]
 
@@ -36,9 +37,20 @@ def messaggio(message):
                 return False
             return True
         else:
+            print("non logged")
             return False
     except IndexError:
         return False
+
+def changeToMqttMessage(message):
+    admin=False
+    match message[1]:
+        case "main":
+            admin=True
+    psw=info.PIN_GUEST
+    if(admin):
+        psw=info.PIN_ADMIN
+    return str(psw)+"|"+message[3]+"|"
 
 def accesso(nome,psw,websocket):
     """verifica che i dati inseriti siano corretti e esegue il salvataggio tra quelli online
@@ -49,7 +61,7 @@ def accesso(nome,psw,websocket):
     :return: se l'utente è stato aggiuinto o no
     """
     verifica = False
-    with open('log.csv', mode='r', newline='', encoding='utf-8') as file:
+    with open('users.csv', mode='r', newline='', encoding='utf-8') as file:
         lettore = csv.reader(file, delimiter=',')
         for riga in lettore:
             if riga[0]==nome and riga[1]==psw:
@@ -79,8 +91,7 @@ def userFromWebsocket(websocket):
     for user in onlineUser:
         if websocket==user.websocket:
             return user
-        else:
-            return None
+    return None
 
 def removeOnlineUser(websocket):
     global onlineUser

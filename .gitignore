@@ -209,3 +209,5 @@ __marimo__/
 # PrivateKey
 *.pem
 *.crt
+info.py
+users.csv

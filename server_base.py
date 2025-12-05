@@ -3,8 +3,8 @@ import websockets
 import ssl
 import pathlib
 import utility
-import User
-import testMessage
+import mosquitto as mqttClient
+from datetime import datetime
 
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 localhost_pem = pathlib.Path(__file__).parent / "certificatoSSL" / "localhost.pem"
@@ -22,7 +22,12 @@ async def manager(websocket):
         if(messageParts[0]=="M"):
             if(utility.messaggio(messageParts)):
                 #la struttura del messaggio è corretta
-                await utility.sendTo(websocket, "R:Feedback")
+                if messageParts[3]=="ChronDoor":
+                    with open(mqttClient.nomeFileLog, "r") as log:
+                        await utility.sendTo(websocket, log.read())
+                else:
+                    command=utility.changeToMqttMessage(messageParts)
+                    mqttClient.sendCommand(command, utility.userFromWebsocket(websocket))
             else:
                 await utility.sendTo(websocket, "R:-E1")
         elif(messageParts[0]=="A"):
