@@ -45,7 +45,7 @@ def messaggio(message):
 def changeToMqttMessage(message):
     admin=False
     match message[1]:
-        case "main":
+        case info.NICKNAME_ADMIN:
             admin=True
     psw=info.PIN_GUEST
     if(admin):
