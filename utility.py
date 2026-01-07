@@ -8,7 +8,8 @@ commandList=[
     "CloseDoor",
     "OpenDoor",
     "StatusDoor",
-    "ChronDoor"
+    "ChronDoor",
+    "InterruptAlarm"
 ]
 
 def messaggio(message):
