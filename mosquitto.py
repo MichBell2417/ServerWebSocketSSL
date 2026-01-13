@@ -45,8 +45,8 @@ def saveInFile(file, payload):
     file.write(datetime.strftime(datetime.now(),"%Y-%m-%d %H:%M:%S.%f")+" => "+payload+"\n")
 
 def payloadToStr(payload):
-    payload=str(payload).removeprefix("b'")
-    payload=payload.removesuffix("'")
+    payload=str(payload).removeprefix("b")
+    payload=payload.strip("'\"")
     return payload
 
 
