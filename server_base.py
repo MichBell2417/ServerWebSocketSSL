@@ -40,6 +40,7 @@ async def manager(websocket):
     print("disconnected")
 
 async def start():
+    print("starting websocket")
     async with websockets.serve(manager, "0.0.0.0", 8080, ssl=ssl_context):
         await asyncio.Future()  # run forever
 

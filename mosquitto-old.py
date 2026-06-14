@@ -31,7 +31,7 @@ def on_message(client, userdata, msg):
             asyncio.run(utility.sendTo(listWaitedUser.pop(0).websocket, ("R:-"+payloadToStr(msg.payload))))
         except exception.ConnectionClosed:
             print("utente disconnesso prima di ricevere il messaggio")
-
+            
     percorso=Path(nomeFileLog)
     if(not percorso.exists()):
         with open(nomeFileLog, 'w') as file:
@@ -54,13 +54,13 @@ mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 
-# --- Connection and loop: non blocking and robust on constrained systems ---
-# Start the connection asynchronously, then start the background loop.
-# Using connect_async ensures the connect attempt is handled by the loop thread
-# and avoids blocking at import time on slow DNS/IO or low-resource devices.
-mqttc.connect_async(broker, port)
+# Blocking call that processes network traffic, dispatches callbacks and
+# handles reconnecting.
+# Other loop*() functions are available that give a threaded interface and a
+# manual interface.
 mqttc.loop_start()
 
+client.connect_async(broker, port)
 def sendCommand(message, user):
     #inviamo il messaggio e aspettiamo che venga ricevuto
     mqttc.publish(topicCommand, message).wait_for_publish()
