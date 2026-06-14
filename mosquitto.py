@@ -54,12 +54,27 @@ mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 
-# --- Connection and loop: non blocking and robust on constrained systems ---
-# Start the connection asynchronously, then start the background loop.
-# Using connect_async ensures the connect attempt is handled by the loop thread
-# and avoids blocking at import time on slow DNS/IO or low-resource devices.
-mqttc.connect_async(broker, port)
-mqttc.loop_start()
+def init_client():
+    """
+    Configura il client e registra la richiesta di connessione.
+    Non avvia alcun loop o thread: il pump asyncio chiamerà mqttc.loop(timeout).
+    Chiamare mosquitto.init_client() prima di creare il task mqtt_pump().
+    """
+    # registra la richiesta di connessione che verrà eseguita dal pump
+    try:
+        mqttc.connect_async(broker, port)
+    except Exception as e:
+        # log minimale: non interrompiamo l'import
+        print("mosquitto.init_client: connect_async error:", e)
+
+def stop_client():
+    """
+    Disconnette il client in modo pulito. Chiamare da codice di shutdown.
+    """
+    try:
+        mqttc.disconnect()
+    except Exception:
+        pass
 
 def sendCommand(message, user):
     #inviamo il messaggio e aspettiamo che venga ricevuto
